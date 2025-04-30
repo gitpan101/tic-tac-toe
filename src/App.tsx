@@ -25,79 +25,75 @@ function App() {
     setCurrSymb(currSymb == 'X' ? 'O' : 'X');
   };
 
-  const calculate = useCallback(() => {
+  const reset = useCallback(() => {
     for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[i][i] == 'X') countX.current++;
-      if (grid.current[i][i] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[i][grid.current.length - 1 - i] == 'X') countX.current++;
-      if (grid.current[i][grid.current.length - 1 - i] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[0][i] == 'X') countX.current++;
-      if (grid.current[0][i] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[grid.current.length - 1][i] == 'X') countX.current++;
-      if (grid.current[grid.current.length - 1][i] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[i][0] == 'X') countX.current++;
-      if (grid.current[i][0] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[i][grid.current.length - 1] == 'X') countX.current++;
-      if (grid.current[i][grid.current.length - 1] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[i][Math.floor(grid.current.length / 2)] == 'X') countX.current++;
-      if (grid.current[i][Math.floor(grid.current.length / 2)] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-
-    for (let i = 0; i < grid.current.length; i++) {
-      if (grid.current[Math.floor(grid.current.length / 2)][i] == 'X') countX.current++;
-      if (grid.current[Math.floor(grid.current.length / 2)][i] == 'O') countO.current++;
-    }
-
-    if (checkWin()) return;
-  }, []);
-
-  const checkWin = () => {
-    if (countX.current == grid.current.length) {
-      setWinner('X');
-      return true;
-    }
-
-    if (countO.current == grid.current.length) {
-      setWinner('O');
-      return true;
+      for (let j = 0; j < grid.current.length; j++) {
+        grid.current[i][j] = '';
+      }
     }
 
     countX.current = 0;
     countO.current = 0;
-    return false;
-  };
+
+    if (winner !== '') {
+      alert(`Winner is ${winner}`);
+      setWinner('');
+    }
+
+    setCurrSymb('X');
+  }, [winner]);
+
+  const calculate = useCallback(() => {
+    // Check rows
+    for (let i = 0; i < grid.current.length; i++) {
+      if (grid.current[i].every((cell) => cell === 'X')) {
+        setWinner('X');
+        return;
+      }
+      if (grid.current[i].every((cell) => cell === 'O')) {
+        setWinner('O');
+        return;
+      }
+    }
+
+    // Check columns
+    for (let i = 0; i < grid.current.length; i++) {
+      if (grid.current.every((row) => row[i] === 'X')) {
+        setWinner('X');
+        return;
+      }
+      if (grid.current.every((row) => row[i] === 'O')) {
+        setWinner('O');
+        return;
+      }
+    }
+
+    // Check diagonals
+    if (grid.current.every((_, i) => grid.current[i][i] === 'X')) {
+      setWinner('X');
+      return;
+    }
+    if (grid.current.every((_, i) => grid.current[i][i] === 'O')) {
+      setWinner('O');
+      return;
+    }
+    if (grid.current.every((_, i) => grid.current[i][grid.current.length - 1 - i] === 'X')) {
+      setWinner('X');
+      return;
+    }
+    if (grid.current.every((_, i) => grid.current[i][grid.current.length - 1 - i] === 'O')) {
+      setWinner('O');
+      return;
+    }
+
+    // Check if the grid is full
+    const isGridFull = grid.current.every((row) => row.every((cell) => cell !== ''));
+    if (isGridFull) {
+      alert("Game Over! It's a draw.");
+      setWinner('');
+      reset();
+    }
+  }, [reset]);
 
   useEffect(() => {
     setGCT(grid.current.reduce((acc) => acc + '80px ', ''));
@@ -108,21 +104,8 @@ function App() {
   }, [currSymb, calculate]);
 
   useEffect(() => {
-    if (winner !== '') {
-      for (let i = 0; i < grid.current.length; i++) {
-        for (let j = 0; j < grid.current.length; j++) {
-          grid.current[i][j] = '';
-        }
-      }
-
-      countX.current = 0;
-      countO.current = 0;
-
-      alert(`Winner is ${winner}`);
-      setWinner('');
-      setCurrSymb('X');
-    }
-  }, [winner]);
+    reset();
+  }, [winner, reset]);
 
   return (
     GCT && (
@@ -145,13 +128,14 @@ function App() {
               <div
                 key={col}
                 style={{
-                  border: '1px solid white',
+                  border: '2px solid #1B1212',
                   height: '80px',
                   width: '80px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
                   fontSize: '72px',
+                  color: '#1B1212',
                 }}
                 onClick={() => onBoxClick(row, col)}
               >
