@@ -2,6 +2,10 @@
 
 This is a tic tac toe game developed using React + Typescript + Vite. You can dynamically change grid sizes to play.
 
+### Current working link to Game
+
+http://tic-tac-toe-prod.ap-south-1.elasticbeanstalk.com/
+
 ## Start
 
 Use `npm run dev` command to run the game in your web browser.
